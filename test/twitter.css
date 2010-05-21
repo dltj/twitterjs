@@ -16,15 +16,15 @@ body {
   white-space: nowrap;
 }
 
-.twitters span.prefix {
+.twitters span.twitterPrefix {
   font-weight: bold;
 }
 
-.twitters span.time {
+.twitters span.twitterTime {
   font-style: italic;
   color: #c5c5c5;
 }
 
-.twitters span.status {
+.twitters span.twitterStatus {
   font-style: italic;
 }
