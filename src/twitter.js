@@ -12,6 +12,8 @@
  *           prefix: {String} '%name% said', defaults to blank
  *           clearContents: {Boolean} true, removes contents of element specified in cssIdOfContainer, defaults to true
  *           ignoreReplies: {Boolean}, skips over tweets starting with '@', defaults to false
+ *           ignoreOlderThan: {Int} ignore tweets older than this number of seconds, defaults to 24 hours
+ *           stopIfSeen: {String} stop displaying tweets if this is seen in the text of a tweet (optional)
  *           template: {String} HTML template to use for LI element (see URL above for examples), defaults to predefined template
  *           enableLinks: {Boolean} linkifies text, defaults to true,
  *           newwindow {Boolean} opens links in new window, defaults to false
@@ -29,6 +31,8 @@
  * @license MIT (MIT-LICENSE.txt)
  * @version 1.13.3 - ify now supports lists
  * @date $Date$
+ *
+ * Modified 20100513T1351 to include "ignoreOlderThan" and "stopIfSeen"
  */
 
 // to protect variables from resetting if included more than once
@@ -105,6 +109,18 @@ if (typeof renderTwitters != 'function') (function () {
         
         for (i = 0; i < max && obj[i]; i++) {
             data = getTwitterData(obj[i]);
+            
+            if (options.ignoreOlderThan > 0) {
+                var parsed_date = parse_twitter_date(obj[i].created_at),
+                    delta = calc_relative_time(parsed_date);
+                if (delta > options.ignoreOlderThan) {
+                    break; // skip remainder since they are in reverse chron order
+                }
+            }
+            
+            if (options.stopIfSeen && obj[i].text.match(options.stopIfSeen)) {
+                break; // "Stop If Seen" triggered, skip remainder of tweets
+            }
                         
             if (options.ignoreReplies && obj[i].text.substr(0, 1) == '@') {
                 max++;
@@ -154,13 +170,15 @@ if (typeof renderTwitters != 'function') (function () {
             ul.appendChild(li);
         }
 
-        if (options.clearContents) {
-            while (target.firstChild) {
-                target.removeChild(target.firstChild);
-            }
+		// Only append the list of tweets if there is anything in the list
+		if (ul.hasChildNodes()) {
+          if (options.clearContents) {
+              while (target.firstChild) {
+                  target.removeChild(target.firstChild);
+              }
+          }
+          target.appendChild(ul);
         }
-
-        target.appendChild(ul);
         
         if (typeof options.callback == 'function') {
             options.callback();
@@ -191,6 +209,10 @@ if (typeof renderTwitters != 'function') (function () {
         
         if (typeof options.clearContents == 'undefined') {
             options.clearContents = true;
+        }
+        
+        if (typeof options.ignoreOlderThan == 'undefined') {
+            options.ignoreOlderThan = 24*60*60; // 24 hours
         }
         
         // Hack to disable withFriends, twitter changed their API so this requires auth
@@ -313,14 +335,20 @@ if (typeof renderTwitters != 'function') (function () {
         }
     }
     
-    function relative_time(time_value) {
+    function parse_twitter_date(time_value) {
         var values = time_value.split(" "),
-            parsed_date = Date.parse(values[1] + " " + values[2] + ", " + values[5] + " " + values[3]),
-            date = new Date(parsed_date),
-            relative_to = (arguments.length > 1) ? arguments[1] : new Date(),
-            delta = parseInt((relative_to.getTime() - parsed_date) / 1000),
-            r = '';
+            parsed_date = Date.parse(values[1] + " " + values[2] + ", " + values[5] + " " + values[3]);
+        return parsed_date;
+    }
         
+    function calc_relative_time(parsed_date) {
+        var relative_to = (arguments.length > 1) ? arguments[1] : new Date(),
+            delta = parseInt((relative_to.getTime() - parsed_date) / 1000);;
+        delta = delta + (relative_to.getTimezoneOffset() * 60);
+        return delta;
+    }
+    
+    function relative_time(time_value) {
         function formatTime(date) {
             var hour = date.getHours(),
                 min = date.getMinutes() + "",
@@ -366,9 +394,12 @@ if (typeof renderTwitters != 'function') (function () {
             
             return mon + ' ' + day + th + (thisyear != year ? ', ' + year : '');
         }
-        
-        delta = delta + (relative_to.getTimezoneOffset() * 60);
 
+        var parsed_date = parse_twitter_date(time_value),
+            date = new Date(parsed_date),
+            delta = calc_relative_time(parsed_date),
+            r = '';
+            
         if (delta < 5) {
             r = 'less than 5 seconds ago';
         } else if (delta < 30) {

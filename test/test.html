@@ -36,6 +36,14 @@
         ignoreReplies: true,
         template: '<span class="twitterPrefix"><img height="16" width="16" src="%user_profile_image_url%" /> <span class="twitterStatus">%text%</span> <em class="twitterTime"><a href="http://twitter.com/%user_screen_name%/statuses/%id%">%time%</a></em>'
     });
+    
+    getTwitters('ohiolinktest', {
+    	id: 'ohiolink',
+    	count: 20,
+    	ignoreReplies: true,
+    	ignoreOlderThan: 36*60*60,
+    	stopIfSeen: 'journals',
+    });
     </script>
   </head>
   <body id="page">
@@ -82,6 +90,11 @@
           <p><a href="http://twitter.com/jeresig">If you can't wait - check out what I've been twittering</a></p>
         </div>
 
+	<h2>OhioLINK Test Template</h2>
+	
+	<div class="twitters" id="ohiolinktest">
+	  <p>Something Goes Here</p>
+	</div>
     </div>
   </body>
 </html>
