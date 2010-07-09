@@ -8,7 +8,7 @@
 
     <script src="../src/twitter.js" type="text/javascript" charset="utf-8"></script>
     <script type="text/javascript" charset="utf-8">
-    getTwitters('remysTweets1', {
+    getTwitters('//remysTweets1', {
         id: 'rem', 
         prefix: '<img height="16" width="16" src="%profile_image_url%" /><a href="http://twitter.com/%screen_name%">%name%</a> said: ', 
         clearContents: false, // leave the original message in place
@@ -18,7 +18,7 @@
         newwindow: true
     });
     
-    getTwitters('remysTweets2', {
+    getTwitters('//remysTweets2', {
         id: 'rem',
         timeout: 1,
         onTimeout: function () {
@@ -28,7 +28,7 @@
         ignoreReplies: true
     });
 
-    getTwitters('johnsTweets', {
+    getTwitters('//johnsTweets', {
         id: 'codepo8', 
         count: 20, 
         withFriends: true, // currently disabled due to change in Twitter API
@@ -43,6 +43,8 @@
     	ignoreReplies: true,
     	ignoreOlderThan: 36*60*60,
     	stopIfSeen: 'journals',
+    	cookieDomain: 'ohiolink.edu',
+    	cookieRefresh: 5
     });
     </script>
   </head>

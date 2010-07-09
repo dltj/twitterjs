@@ -22,6 +22,8 @@
  *           onTimeout: {Function} Function to run when the timeout occurs. Function is bound to element specified with 
  *           cssIdOfContainer (i.e. 'this' keyword)
  *           callback: {Function} Callback function once the render is complete, doesn't fire on timeout
+ *			 cookieDomain: {String} Domain to set message cache cookie (optional, empty doesn't set cache cookie)
+ *           cookieRefresh: {Int} Number of minutes before message cache cookie expires (optional, 0 doesn't set cache cookie)
  *
  *      CURRENTLY DISABLED DUE TO CHANGE IN TWITTER API:
  *           withFriends: {Boolean} includes friend's status
@@ -33,6 +35,7 @@
  * @date $Date$
  *
  * Modified 20100513T1351 to include "ignoreOlderThan" and "stopIfSeen"
+ * Modified 20100708T2028 to add response cache in a cookie
  */
 
 // to protect variables from resetting if included more than once
@@ -57,6 +60,8 @@ if (typeof renderTwitters != 'function') (function () {
     var isReady = false;
     
     var monthDict = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    var statusCookieName = "statusCookie";
     
     /** Global functions */
     
@@ -179,6 +184,8 @@ if (typeof renderTwitters != 'function') (function () {
           }
           target.appendChild(ul);
         }
+
+		setTweetCookie(ul.innerHTML,options.cookieDomain,options.cookieRefresh);
         
         if (typeof options.callback == 'function') {
             options.callback();
@@ -264,6 +271,21 @@ if (typeof renderTwitters != 'function') (function () {
     
 
     /** Private functions */
+    
+    function setTweetCookie(tweetHtml, cookieDomain, cookieRefresh) {
+    	if (cookieDomain && cookieRefresh > 0) {
+	    	var today = new Date();
+    		today.setTime(today.getTime());
+    		var expires = cookieRefresh * 1000 * 60; // Minutes to milliseconds
+	    	var expires_date = new Date(today.getTime() + (expires));
+
+			document.cookie = statusCookieName + "=" + escape(tweetHtml) + 
+					";expires=" + expires_date.toGMTString() +
+					";path=/" +
+					";domain=" + cookieDomain;
+    	}
+    	return;
+    }
     
     function getTwitterData(orig) {
         var data = orig, i;
