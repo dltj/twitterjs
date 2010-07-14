@@ -188,7 +188,7 @@ if (typeof renderTwitters != 'function') (function () {
           target.appendChild(ul);
         }
 
-		setTweetCookie(options.statusCookieName,ul.innerHTML,options.cookieDomain,options.cookieRefresh);
+		setTweetCookie(options.statusCookieName,target.innerHTML,options.cookieDomain,options.cookieRefresh);
         
         if (typeof options.callback == 'function') {
             options.callback();
