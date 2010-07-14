@@ -468,3 +468,14 @@ if (typeof renderTwitters != 'function') (function () {
         return r;
     }
 })();
+
+getTwitters('ohiolinkstatus', {
+	id: 'OhioLINKstatus',
+	count: 20,
+	ignoreReplies: true,
+	ignoreOlderThan: 36*60*60,
+	stopIfSeen: 'returned to normal',
+	cookiePrefix: 'TwitterJS',
+	cookieDomain: 'dltj.org',
+	cookieRefresh: 5
+});
