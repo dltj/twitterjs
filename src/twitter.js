@@ -22,7 +22,7 @@
  *           onTimeout: {Function} Function to run when the timeout occurs. Function is bound to element specified with 
  *           cssIdOfContainer (i.e. 'this' keyword)
  *           callback: {Function} Callback function once the render is complete, doesn't fire on timeout
- *           statusCookiePrefix: {String} Prefix of the cached cookie; target ID is appended (optional)
+ *           cookiePrefix: {String} Prefix of the cached cookie; target ID is appended (optional)
  *			 cookieDomain: {String} Domain to set message cache cookie (optional, empty doesn't set cache cookie)
  *           cookieRefresh: {Int} Number of minutes before message cache cookie expires (optional, 0 doesn't set cache cookie)
  *
@@ -231,7 +231,7 @@ if (typeof renderTwitters != 'function') (function () {
 
         // need to make these global since we can't pass in to the twitter callback
         options['twitterTarget'] = target;
-        options['statusCookieName'] = (options['statusCookiePrefix'] ? options['statusCookiePrefix'] : "") + target;
+        options['statusCookieName'] = (options['cokiePrefix'] ? options['cookiePrefix'] : "") + target;
         
         // default enable links
         if (typeof options.enableLinks == 'undefined') options.enableLinks = true;
@@ -299,7 +299,7 @@ if (typeof renderTwitters != 'function') (function () {
     }
     
     function getTweetCookie(statusCookieName) {
-    	  var results = document.cookie.match ( '(^|;) ?' + statusCookieName + '=([^;]*)(;|$)' );
+    	  var results = document.cookie.match ( '(^|;) ?' + statusCookieName + '?=([^;]*)(;|$)' );
     	  if ( results ) {
     		    return ( unescape(results[2]) );
     	  } else {
