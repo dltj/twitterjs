@@ -22,6 +22,7 @@
  *           onTimeout: {Function} Function to run when the timeout occurs. Function is bound to element specified with 
  *           cssIdOfContainer (i.e. 'this' keyword)
  *           callback: {Function} Callback function once the render is complete, doesn't fire on timeout
+ *           statusCookiePrefix: {String} Prefix of the cached cookie; target ID is appended (optional)
  *			 cookieDomain: {String} Domain to set message cache cookie (optional, empty doesn't set cache cookie)
  *           cookieRefresh: {Int} Number of minutes before message cache cookie expires (optional, 0 doesn't set cache cookie)
  *
@@ -31,11 +32,13 @@
  *       }
  *
  * @license MIT (MIT-LICENSE.txt)
- * @version 1.13.3 - ify now supports lists
+ * @version 
  * @date $Date$
  *
  * Modified 20100513T1351 to include "ignoreOlderThan" and "stopIfSeen"
  * Modified 20100708T2028 to add response cache in a cookie
+ * 
+ * Borrows code from http://techpatterns.com/downloads/javascript_cookies.php
  */
 
 // to protect variables from resetting if included more than once
@@ -185,7 +188,7 @@ if (typeof renderTwitters != 'function') (function () {
           target.appendChild(ul);
         }
 
-		setTweetCookie(ul.innerHTML,options.cookieDomain,options.cookieRefresh);
+		setTweetCookie(options.statusCookieName,ul.innerHTML,options.cookieDomain,options.cookieRefresh);
         
         if (typeof options.callback == 'function') {
             options.callback();
@@ -228,6 +231,7 @@ if (typeof renderTwitters != 'function') (function () {
 
         // need to make these global since we can't pass in to the twitter callback
         options['twitterTarget'] = target;
+        options['statusCookieName'] = (options['statusCookiePrefix'] ? options['statusCookiePrefix'] : "") + target;
         
         // default enable links
         if (typeof options.enableLinks == 'undefined') options.enableLinks = true;
@@ -247,6 +251,12 @@ if (typeof renderTwitters != 'function') (function () {
                 // if the element isn't on the DOM, don't bother
                 if (!document.getElementById(options.twitterTarget)) {
                     return;
+                }
+                
+                var cachedTweets = getTweetCookie(options.statusCookieName);
+                if (cachedTweets) {
+                	document.getElementById(options.twitterTarget).innerHTML = cachedTweets;
+                	return;
                 }
                 
                 var url = 'http://www.twitter.com/statuses/' + (options.withFriends ? 'friends_timeline' : 'user_timeline') + '/' + id + '.json?callback=twitterCallback' + guid + '&count=20&cb=' + Math.random();
@@ -272,7 +282,8 @@ if (typeof renderTwitters != 'function') (function () {
 
     /** Private functions */
     
-    function setTweetCookie(tweetHtml, cookieDomain, cookieRefresh) {
+    function setTweetCookie(statusCookieName, tweetHtml, cookieDomain, cookieRefresh) {
+    	// Skip if we don't have values for either cookieDomain or cookieRefresh
     	if (cookieDomain && cookieRefresh > 0) {
 	    	var today = new Date();
     		today.setTime(today.getTime());
@@ -285,6 +296,15 @@ if (typeof renderTwitters != 'function') (function () {
 					";domain=" + cookieDomain;
     	}
     	return;
+    }
+    
+    function getTweetCookie(statusCookieName) {
+    	  var results = document.cookie.match ( '(^|;) ?' + statusCookieName + '=([^;]*)(;|$)' );
+    	  if ( results ) {
+    		    return ( unescape(results[2]) );
+    	  } else {
+    		    return null;
+    	  }
     }
     
     function getTwitterData(orig) {
